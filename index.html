@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday My Queen</title>
+  <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js"></script>
+  <style>
+    :root {
+      --rose: #c2185b;
+      --hot-rose: #e91e63;
+      --wine: #4a0e2a;
+      --ink: #2d1520;
+      --gold: #d4a843;
+      --cream: #faf6f0;
+      --paper: #fffefc;
+      --shadow: 0 32px 80px rgba(74, 14, 42, 0.25);
+      --sans: "Segoe UI", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", system-ui, -apple-system, sans-serif;
+      --serif: Georgia, "Times New Roman", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { min-height: 100%; }
+
+    body {
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      padding: 18px;
+      color: var(--ink);
+      font-family: var(--sans);
+      background: linear-gradient(145deg, #1a0a12 0%, #2d1520 30%, #4a0e2a 60%, #1a0a12 100%);
+    }
+
+    img.emoji {
+      width: 1.05em;
+      height: 1.05em;
+      margin: 0 0.04em;
+      vertical-align: -0.16em;
+    }
+
+    /* Ambient particles */
+    .ambient {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(1px);
+      opacity: 0.4;
+      animation: drift linear infinite;
+    }
+
+    @keyframes drift {
+      0% { transform: translateY(100vh) translateX(0) scale(0.5); opacity: 0; }
+      10% { opacity: 0.4; }
+      90% { opacity: 0.4; }
+      100% { transform: translateY(-10vh) translateX(30px) scale(1); opacity: 0; }
+    }
+
+    /* Book container */
+    .book-stage {
+      width: min(94vw, 500px);
+      height: min(86svh, 700px);
+      min-height: min(560px, calc(100svh - 24px));
+      perspective: 2000px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .book {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    /* Book spine */
+    .spine {
+      position: absolute;
+      left: -6px;
+      top: 2%;
+      bottom: 2%;
+      width: 12px;
+      background: linear-gradient(90deg, #1a0a12, #3d0f1f, #1a0a12);
+      border-radius: 6px 0 0 6px;
+      z-index: 50;
+      box-shadow: inset -2px 0 4px rgba(0,0,0,0.4), 2px 0 8px rgba(0,0,0,0.3);
+    }
+
+    /* Page stack effect */
+    .page-stack {
+      position: absolute;
+      right: -3px;
+      top: 1%;
+      bottom: 1%;
+      width: 6px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      border-radius: 0 3px 3px 0;
+      z-index: 40;
+    }
+
+    /* Cover */
+    .cover {
+      position: absolute;
+      inset: 0;
+      border-radius: 4px 16px 16px 4px;
+      overflow: hidden;
+      backface-visibility: hidden;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      color: white;
+      text-align: center;
+      transform-origin: left center;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%),
+        linear-gradient(145deg, #8b1c4a 0%, #5f1232 40%, #2d1520 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow:
+        inset 0 0 60px rgba(0,0,0,0.3),
+        inset 0 0 0 1px rgba(255,255,255,0.05),
+        var(--shadow);
+      transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.6s ease, z-index 0s 1.2s;
+    }
+
+    .book.open .cover {
+      transform: rotateY(-160deg);
+      opacity: 0.15;
+      z-index: 0;
+    }
+
+    .cover::before {
+      content: "";
+      position: absolute;
+      inset: 20px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      pointer-events: none;
+    }
+
+    .cover::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 35%;
+      background:
+        linear-gradient(35deg, transparent 49.5%, rgba(255,255,255,0.06) 50%, transparent 50.5%),
+        linear-gradient(-35deg, transparent 49.5%, rgba(255,255,255,0.05) 50%, transparent 50.5%);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .cover-seal {
+      width: clamp(76px, 18vw, 90px);
+      height: clamp(76px, 18vw, 90px);
+      display: grid;
+      place-items: center;
+      margin-bottom: 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+      border: 2px solid rgba(255,255,255,0.2);
+      font-family: var(--sans);
+      font-size: clamp(34px, 8vw, 42px);
+      backdrop-filter: blur(8px);
+    }
+
+    .cover-title {
+      font-family: var(--serif);
+      font-size: clamp(2.1rem, 6.8vw, 3.35rem);
+      line-height: 1.04;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 300;
+    }
+
+    .cover-subtitle {
+      margin-top: 16px;
+      color: rgba(255,255,255,0.7);
+      font-size: clamp(1.05rem, 2.9vw, 1.14rem);
+      line-height: 1.45;
+      letter-spacing: 0.3px;
+      font-weight: 300;
+    }
+
+    .cover-btn {
+      margin-top: 32px;
+      padding: 14px 36px;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      font-family: var(--sans);
+    }
+
+    .cover-btn:hover {
+      background: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.5);
+      transform: translateY(-2px);
+    }
+
+    /* Pages */
+    .page {
+      position: absolute;
+      inset: 0;
+      border-radius: 4px 16px 16px 4px;
+      overflow: hidden;
+      backface-visibility: hidden;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(20px, 4.2vw, 34px);
+      background: var(--paper);
+      border: 1px solid rgba(74, 14, 42, 0.06);
+      box-shadow:
+        inset 30px 0 40px -20px rgba(74, 14, 42, 0.04),
+        inset 0 0 0 1px rgba(255,255,255,0.9),
+        var(--shadow);
+      transform-origin: left center;
+      transform-style: preserve-3d;
+      opacity: 0;
+      pointer-events: none;
+      transition: none;
+    }
+
+    .page.active {
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 10;
+    }
+
+    /* Page turning animations */
+    .page.turning-out {
+      animation: pageTurnOut 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .page.turning-in {
+      animation: pageTurnIn 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .page.turning-in-reverse {
+      animation: pageTurnInReverse 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .page.turning-out-reverse {
+      animation: pageTurnOutReverse 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes pageTurnOut {
+      0% { transform: rotateY(0deg); opacity: 1; z-index: 10; }
+      50% { opacity: 0.6; }
+      100% { transform: rotateY(-180deg); opacity: 0; z-index: 0; }
+    }
+
+    @keyframes pageTurnIn {
+      0% { transform: rotateY(180deg); opacity: 0; z-index: 0; }
+      50% { opacity: 0.6; }
+      100% { transform: rotateY(0deg); opacity: 1; z-index: 10; }
+    }
+
+    @keyframes pageTurnInReverse {
+      0% { transform: rotateY(-180deg); opacity: 0; z-index: 0; }
+      50% { opacity: 0.6; }
+      100% { transform: rotateY(0deg); opacity: 1; z-index: 10; }
+    }
+
+    @keyframes pageTurnOutReverse {
+      0% { transform: rotateY(0deg); opacity: 1; z-index: 10; }
+      50% { opacity: 0.6; }
+      100% { transform: rotateY(180deg); opacity: 0; z-index: 0; }
+    }
+
+    /* Paper texture */
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(74,14,42,0.015) 28px, rgba(74,14,42,0.015) 29px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Page corner fold */
+    .page::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 20px 20px 0;
+      border-color: transparent rgba(74,14,42,0.04) transparent transparent;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .page > * { position: relative; z-index: 1; }
+
+    .page-header {
+      text-align: center;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(74, 14, 42, 0.08);
+    }
+
+    .page-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 14px;
+      border-radius: 999px;
+      color: var(--wine);
+      background: rgba(212, 168, 67, 0.15);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .page h1, .page h2 {
+      font-family: var(--serif);
+      color: var(--wine);
+      font-weight: 400;
+      letter-spacing: 0.4px;
+    }
+
+    .page h1 {
+      margin-top: 10px;
+      font-size: clamp(2rem, 6.4vw, 2.95rem);
+      line-height: 1.05;
+    }
+
+    .page h2 {
+      margin-top: 8px;
+      font-size: clamp(1.65rem, 5.5vw, 2.35rem);
+      line-height: 1.08;
+    }
+
+    .message {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 4px 8px 4px 2px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(194, 24, 91, 0.25) transparent;
+    }
+
+    .message::-webkit-scrollbar { width: 6px; }
+    .message::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: rgba(194, 24, 91, 0.2);
+    }
+
+    .message p {
+      margin-bottom: 11px;
+      color: #3d1f2e;
+      font-size: clamp(1.04rem, 2.65vw, 1.16rem);
+      line-height: 1.64;
+      font-weight: 400;
+    }
+
+    .big-line {
+      color: var(--rose);
+      font-family: var(--serif);
+      font-size: clamp(1.28rem, 4.3vw, 1.72rem);
+      line-height: 1.25;
+      text-align: center;
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    .signature {
+      margin-top: 16px;
+      color: var(--wine);
+      font-family: var(--serif);
+      font-size: clamp(1.18rem, 3.4vw, 1.32rem);
+      text-align: center;
+      font-style: italic;
+    }
+
+    .mini-hearts {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 16px;
+      font-family: var(--sans);
+      font-size: 1.42rem;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 44px 1fr 44px;
+      align-items: center;
+      gap: 12px;
+      padding-top: 6px;
+      margin-top: auto;
+    }
+
+    .icon-btn, .primary-btn {
+      border: 0;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: all 0.25s ease;
+    }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--wine);
+      background: rgba(74, 14, 42, 0.06);
+      font-size: 1.18rem;
+      border: 1px solid rgba(74, 14, 42, 0.1);
+    }
+
+    .icon-btn:disabled {
+      cursor: default;
+      opacity: 0.3;
+      transform: none;
+    }
+
+    .icon-btn:not(:disabled):hover {
+      background: rgba(74, 14, 42, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .primary-btn {
+      min-height: 48px;
+      border-radius: 999px;
+      color: white;
+      background: linear-gradient(135deg, var(--rose), var(--hot-rose));
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      font-size: 1rem;
+      box-shadow: 0 8px 24px rgba(194, 24, 91, 0.25);
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(194, 24, 91, 0.35);
+    }
+
+    .page-dots {
+      position: absolute;
+      left: 50%;
+      bottom: -28px;
+      display: flex;
+      gap: 8px;
+      transform: translateX(-50%);
+      z-index: 60;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      width: 20px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.6);
+    }
+
+    .confetti-piece {
+      position: fixed;
+      top: -10px;
+      z-index: 100;
+      width: 8px;
+      height: 14px;
+      border-radius: 2px;
+      pointer-events: none;
+    }
+
+    @keyframes confettiFall {
+      0% { opacity: 1; transform: translate3d(0, -10px, 0) rotate(0deg); }
+      100% { opacity: 0; transform: translate3d(var(--fall-x), 105vh, 0) rotate(720deg); }
+    }
+
+    @media (max-width: 430px) {
+      body { padding: 12px; }
+      .book-stage {
+        width: min(96vw, 440px);
+        height: 88svh;
+        min-height: min(530px, calc(100svh - 20px));
+      }
+      .page { padding: 18px 18px 20px; }
+      .page-header { padding-bottom: 10px; margin-bottom: 10px; }
+      .message p {
+        font-size: 1rem;
+        line-height: 1.5;
+        margin-bottom: 8px;
+      }
+      .cover, .page { border-radius: 3px 14px 14px 3px; }
+      .controls {
+        grid-template-columns: 40px 1fr 40px;
+        gap: 8px;
+      }
+      .icon-btn { width: 40px; height: 40px; }
+      .primary-btn { min-height: 42px; font-size: 0.9rem; }
+    }
+  </style>
+<base target="_blank">
+</head>
+
+<body>
+  <div class="ambient" id="ambient"></div>
+
+  <main class="book-stage" aria-label="Animated birthday card">
+    <div class="book" id="book">
+      <div class="spine"></div>
+      <div class="page-stack"></div>
+
+      <!-- Cover -->
+      <section class="cover" id="cover" aria-label="Card cover">
+        <div class="cover-seal">🎂</div>
+        <div class="cover-title">Happy Birthday</div>
+        <p class="cover-subtitle">Yayyyyy! It's your queen's birthday 🎊❤️</p>
+        <button class="cover-btn" type="button" id="openBtn">Open Card 💌</button>
+      </section>
+
+      <!-- Page 1 -->
+      <article class="page active" data-index="0" aria-live="polite">
+        <header class="page-header">
+          <span class="page-kicker">Page 1</span>
+          <h1>My Queen</h1>
+        </header>
+        <div class="message">
+          <p class="big-line">I've got a whole lot to say.</p>
+          <p>Coming into my life a year ago meant a lot to me. Though I didn't see it at first, looking back, God sent you to me.</p>
+          <p>I'm really sorry; it was at the cost of another, but He has mysterious ways of doing things. That's the way, by the way. I'm so grateful. ✨</p>
+        </div>
+        <nav class="controls" aria-label="Page controls">
+          <button class="icon-btn prevBtn" type="button" aria-label="Previous page" disabled>‹</button>
+          <button class="primary-btn nextBtn" type="button">Next Page ❤️</button>
+          <button class="icon-btn nextIconBtn" type="button" aria-label="Next page">›</button>
+        </nav>
+      </article>
+
+      <!-- Page 2 -->
+      <article class="page" data-index="1" aria-live="polite">
+        <header class="page-header">
+          <span class="page-kicker">Page 2</span>
+          <h2>You Caught My Heart</h2>
+        </header>
+        <div class="message">
+          <p>You're very smart; you got me attracted to you a lot. I was just curious to know more about you. I guess my curiosity made me fall in love.</p>
+          <p>You do have unique ways of doing things I'm yet to understand, but I'll soon figure it out. I'M WIZDOM lol 🥲😂😂.</p>
+          <div class="mini-hearts" aria-hidden="true">
+            <span>💖</span>
+            <span>✨</span>
+            <span>💖</span>
+          </div>
+        </div>
+        <nav class="controls" aria-label="Page controls">
+          <button class="icon-btn prevBtn" type="button" aria-label="Previous page">‹</button>
+          <button class="primary-btn nextBtn" type="button">Next Page 💕</button>
+          <button class="icon-btn nextIconBtn" type="button" aria-label="Next page">›</button>
+        </nav>
+      </article>
+
+      <!-- Page 3 -->
+      <article class="page" data-index="2" aria-live="polite">
+        <header class="page-header">
+          <span class="page-kicker">Page 3</span>
+          <h2>God Made You Mine</h2>
+        </header>
+        <div class="message">
+          <p>I love every bit of you. I think God took you from my ribs personally and made you mine.</p>
+          <p>Your smile, your eyes, your lips... most times they just get me lost looking at you. I'd be like, damnnnnnnnnn, this girl is fine.</p>
+          <p>Don't feel yourself too much; I'm a fine boy too 🥲😂😂.</p>
+        </div>
+        <nav class="controls" aria-label="Page controls">
+          <button class="icon-btn prevBtn" type="button" aria-label="Previous page">‹</button>
+          <button class="primary-btn nextBtn" type="button">Next Page 😫❤️</button>
+          <button class="icon-btn nextIconBtn" type="button" aria-label="Next page">›</button>
+        </nav>
+      </article>
+
+      <!-- Page 4 -->
+      <article class="page" data-index="3" aria-live="polite">
+        <header class="page-header">
+          <span class="page-kicker">Page 4</span>
+          <h2>Our Memories</h2>
+        </header>
+        <div class="message">
+          <p>I want us to make memories together, grow together, and go through struggles together.</p>
+          <p>Nor worry, you nor go suffer 😂😂.</p>
+          <p>I want you to complete me and make me a better boy... no, no, no, I mean man 🥲🤲.</p>
+          <div class="mini-hearts" aria-hidden="true">
+            <span>🌙</span>
+            <span>💫</span>
+            <span>❤️</span>
+          </div>
+        </div>
+        <nav class="controls" aria-label="Page controls">
+          <button class="icon-btn prevBtn" type="button" aria-label="Previous page">‹</button>
+          <button class="primary-btn nextBtn" type="button">Next Page 🙏</button>
+          <button class="icon-btn nextIconBtn" type="button" aria-label="Next page">›</button>
+        </nav>
+      </article>
+
+      <!-- Page 5 -->
+      <article class="page" data-index="4" aria-live="polite">
+        <header class="page-header">
+          <span class="page-kicker">Page 5</span>
+          <h2>My Prayer For You</h2>
+        </header>
+        <div class="message">
+          <p>I'm no prophet, but I pray over you. God continue to bless you. May His face shine upon you.</p>
+          <p>I pray for the wisdom of Solomon, the sound mind of Daniel, the faith of Abraham and Sarah, and the strength and bravery of Samson.</p>
+          <p>God make you outstanding among your peers. I pray for grace, favor, and faith. Amen 🙏</p>
+        </div>
+        <nav class="controls" aria-label="Page controls">
+          <button class="icon-btn prevBtn" type="button" aria-label="Previous page">‹</button>
+          <button class="primary-btn nextBtn" type="button">Final Page ❤️</button>
+          <button class="icon-btn nextIconBtn" type="button" aria-label="Next page">›</button>
+        </nav>
+      </article>
+
+      <!-- Final Page -->
+      <article class="page" data-index="5" aria-live="polite">
+        <header class="page-header">
+          <span class="page-kicker">Final Page</span>
+          <h1>Happy Birthday ❤️</h1>
+        </header>
+        <div class="message">
+          <p class="big-line">Have a wonderful day, which is as bright and beautiful as you 😫❤️.</p>
+          <p class="big-line">I love you to the moon and back, my honey bunny 😫❤️. 🌙💫</p>
+          <p class="signature">Forever yours, Wizdom 💌</p>
+          <div class="mini-hearts" aria-hidden="true">
+            <span>🎂</span>
+            <span>🎊</span>
+            <span>❤️</span>
+            <span>✨</span>
+          </div>
+        </div>
+        <nav class="controls" aria-label="Page controls">
+          <button class="icon-btn prevBtn" type="button" aria-label="Previous page">‹</button>
+          <button class="primary-btn" type="button" id="restartBtn">Read Again 🎂</button>
+          <button class="icon-btn" type="button" id="celebrateBtn" aria-label="Celebrate">✦</button>
+        </nav>
+      </article>
+    </div>
+
+    <div class="page-dots" id="pageDots" aria-hidden="true"></div>
+  </main>
+
+  <script>
+    function renderEmoji() {
+      if (!window.twemoji) return;
+
+      twemoji.parse(document.body, {
+        base: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/",
+        folder: "svg",
+        ext: ".svg"
+      });
+    }
+
+    // Ambient particles
+    const ambient = document.getElementById("ambient");
+    const colors = ["#c2185b", "#d4a843", "#ffffff", "#e91e63"];
+    for (let i = 0; i < 20; i++) {
+      const p = document.createElement("div");
+      p.className = "particle";
+      p.style.left = Math.random() * 100 + "%";
+      p.style.width = p.style.height = (2 + Math.random() * 4) + "px";
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDuration = (12 + Math.random() * 20) + "s";
+      p.style.animationDelay = (Math.random() * 15) + "s";
+      ambient.appendChild(p);
+    }
+
+    const book = document.getElementById("book");
+    const openBtn = document.getElementById("openBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const celebrateBtn = document.getElementById("celebrateBtn");
+    const pages = Array.from(document.querySelectorAll(".page"));
+    const dotsWrap = document.getElementById("pageDots");
+    let currentPage = 0;
+    let turning = false;
+
+    const confettiColors = ["#c2185b", "#d4a843", "#8b1c4a", "#ffffff", "#e91e63", "#f8bf4c"];
+
+    // Create dots
+    pages.forEach((_, index) => {
+      const dot = document.createElement("span");
+      dot.className = index === 0 ? "dot active" : "dot";
+      dotsWrap.appendChild(dot);
+    });
+
+    const dots = Array.from(document.querySelectorAll(".dot"));
+
+    function celebrate(amount = 42) {
+      for (let i = 0; i < amount; i++) {
+        const piece = document.createElement("span");
+        piece.className = "confetti-piece";
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.setProperty("--fall-x", (Math.random() - 0.5) * 220 + "px");
+        piece.style.background = confettiColors[i % confettiColors.length];
+        piece.style.animation = `confettiFall ${1 + Math.random() * 0.6}s ease-in forwards`;
+        piece.style.animationDelay = Math.random() * 300 + "ms";
+        document.body.appendChild(piece);
+        piece.addEventListener("animationend", () => piece.remove());
+      }
+    }
+
+    function updateControls() {
+      dots.forEach((dot, index) => dot.classList.toggle("active", index === currentPage));
+
+      document.querySelectorAll(".prevBtn").forEach((button) => {
+        button.disabled = currentPage === 0;
+      });
+
+      document.querySelectorAll(".nextIconBtn").forEach((button) => {
+        button.disabled = currentPage === pages.length - 1;
+      });
+    }
+
+    function showPage(nextIndex) {
+      if (turning || nextIndex === currentPage || nextIndex < 0 || nextIndex >= pages.length) return;
+
+      turning = true;
+      const oldPage = pages[currentPage];
+      const nextPage = pages[nextIndex];
+      const goingForward = nextIndex > currentPage;
+
+      // Remove any existing animation classes
+      oldPage.classList.remove("turning-out", "turning-in", "turning-out-reverse", "turning-in-reverse");
+      nextPage.classList.remove("turning-out", "turning-in", "turning-out-reverse", "turning-in-reverse");
+
+      // Force reflow
+      void oldPage.offsetWidth;
+
+      if (goingForward) {
+        // Forward: old page turns out to the left, new page turns in from the right
+        oldPage.classList.add("turning-out");
+        nextPage.classList.add("active", "turning-in");
+      } else {
+        // Backward: old page turns out to the right, new page turns in from the left
+        oldPage.classList.add("turning-out-reverse");
+        nextPage.classList.add("active", "turning-in-reverse");
+      }
+
+      setTimeout(() => {
+        oldPage.classList.remove("active", "turning-out", "turning-in", "turning-out-reverse", "turning-in-reverse");
+        nextPage.classList.remove("turning-out", "turning-in", "turning-out-reverse", "turning-in-reverse");
+        currentPage = nextIndex;
+        turning = false;
+        updateControls();
+
+        if (currentPage === pages.length - 1) {
+          celebrate(60);
+        }
+      }, 900);
+    }
+
+    function nextPage() {
+      showPage(currentPage + 1);
+    }
+
+    function prevPage() {
+      showPage(currentPage - 1);
+    }
+
+    openBtn.addEventListener("click", () => {
+      book.classList.add("open");
+      celebrate(52);
+      updateControls();
+    });
+
+    document.querySelectorAll(".nextBtn, .nextIconBtn").forEach((button) => {
+      button.addEventListener("click", nextPage);
+    });
+
+    document.querySelectorAll(".prevBtn").forEach((button) => {
+      button.addEventListener("click", prevPage);
+    });
+
+    restartBtn.addEventListener("click", () => {
+      pages[currentPage].classList.remove("active");
+      currentPage = 0;
+      pages[currentPage].classList.add("active");
+      book.classList.remove("open");
+      updateControls();
+      setTimeout(() => celebrate(34), 400);
+    });
+
+    celebrateBtn.addEventListener("click", () => celebrate(70));
+
+    updateControls();
+    renderEmoji();
+  </script>
+</body>
+</html>
