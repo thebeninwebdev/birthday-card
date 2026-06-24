@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Happy Birthday My Queen</title>
-  <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js"></script>
   <style>
     :root {
@@ -408,6 +407,95 @@
       font-size: 1.42rem;
     }
 
+    /* Video Page Styles - 9:16 Portrait */
+    .video-first-page {
+      padding: clamp(16px, 3vw, 24px);
+    }
+
+    .video-first-page .page-header {
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+
+    .video-first-page h1 {
+      font-size: clamp(1.6rem, 5vw, 2.2rem);
+      margin-top: 6px;
+    }
+
+    .video-hero-container {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      overflow: hidden;
+    }
+
+    .video-frame {
+      position: relative;
+      width: 100%;
+      max-width: 280px;
+      aspect-ratio: 9 / 16;
+      max-height: calc(100% - 60px);
+      border-radius: 16px;
+      overflow: hidden;
+      background: linear-gradient(145deg, #2d1520, #4a0e2a);
+      box-shadow: 
+        0 8px 32px rgba(74, 14, 42, 0.3),
+        inset 0 0 0 1px rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-frame video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .video-frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .video-caption-box {
+      text-align: center;
+      padding: 8px 16px;
+    }
+
+    .video-caption-box .big-line {
+      font-size: clamp(1.1rem, 3.5vw, 1.4rem);
+      margin-bottom: 4px;
+    }
+
+    .video-caption-box p {
+      color: var(--wine);
+      font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+      opacity: 0.8;
+    }
+
+    .heart-pulse {
+      display: inline-block;
+      animation: heartbeat 1.5s ease-in-out infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      14% { transform: scale(1.15); }
+      28% { transform: scale(1); }
+      42% { transform: scale(1.15); }
+      70% { transform: scale(1); }
+    }
+
     .controls {
       display: grid;
       grid-template-columns: 44px 1fr 44px;
@@ -502,6 +590,27 @@
       100% { opacity: 0; transform: translate3d(var(--fall-x), 105vh, 0) rotate(720deg); }
     }
 
+    /* Sparkle animation for cover open */
+    .sparkle-burst {
+      position: fixed;
+      pointer-events: none;
+      z-index: 200;
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--gold);
+      border-radius: 50%;
+      animation: sparkleFly 1s ease-out forwards;
+    }
+
+    @keyframes sparkleFly {
+      0% { opacity: 1; transform: translate(0, 0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0); }
+    }
+
     @media (max-width: 430px) {
       body { padding: 12px; }
       .book-stage {
@@ -523,6 +632,8 @@
       }
       .icon-btn { width: 40px; height: 40px; }
       .primary-btn { min-height: 42px; font-size: 0.9rem; }
+      .video-frame { max-width: 240px; }
+      .video-first-page { padding: 14px 16px 16px; }
     }
   </style>
 <base target="_blank">
@@ -544,8 +655,40 @@
         <button class="cover-btn" type="button" id="openBtn">Open Card 💌</button>
       </section>
 
-      <!-- Page 1 -->
-      <article class="page active" data-index="0" aria-live="polite">
+      <!-- Page 1 - VIDEO FIRST (Heartwarming Welcome) -->
+      <article class="page active video-first-page" data-index="0" aria-live="polite">
+        <header class="page-header">
+          <span class="page-kicker">My Queen <span class="heart-pulse">❤️</span></span>
+          <h1>For You, My Love</h1>
+        </header>
+        <div class="video-hero-container">
+          <div class="video-frame">
+            <!-- 
+              ============================================
+              PUT YOUR VIDEO FILE IN THE SAME FOLDER 
+              AND NAME IT: birthday-video.mp4
+              ============================================
+            -->
+            <video id="birthdayVideo" playsinline loop muted autoplay poster="">
+              <source src="birthday-video.mp4" type="video/mp4">
+              <source src="birthday-video.mov" type="video/quicktime">
+              <source src="birthday-video.webm" type="video/webm">
+            </video>
+          </div>
+          <div class="video-caption-box">
+            <p class="big-line">"Every second with you is my favorite moment."</p>
+            <p>Tap the video to unmute <span>🔊</span></p>
+          </div>
+        </div>
+        <nav class="controls" aria-label="Page controls">
+          <button class="icon-btn prevBtn" type="button" aria-label="Previous page" disabled>‹</button>
+          <button class="primary-btn nextBtn" type="button">Read My Letter ❤️</button>
+          <button class="icon-btn nextIconBtn" type="button" aria-label="Next page">›</button>
+        </nav>
+      </article>
+
+      <!-- Page 2 -->
+      <article class="page" data-index="1" aria-live="polite">
         <header class="page-header">
           <span class="page-kicker">Page 1</span>
           <h1>My Queen</h1>
@@ -556,14 +699,14 @@
           <p>I'm really sorry; it was at the cost of another, but He has mysterious ways of doing things. That's the way, by the way. I'm so grateful. ✨</p>
         </div>
         <nav class="controls" aria-label="Page controls">
-          <button class="icon-btn prevBtn" type="button" aria-label="Previous page" disabled>‹</button>
+          <button class="icon-btn prevBtn" type="button" aria-label="Previous page">‹</button>
           <button class="primary-btn nextBtn" type="button">Next Page ❤️</button>
           <button class="icon-btn nextIconBtn" type="button" aria-label="Next page">›</button>
         </nav>
       </article>
 
-      <!-- Page 2 -->
-      <article class="page" data-index="1" aria-live="polite">
+      <!-- Page 3 -->
+      <article class="page" data-index="2" aria-live="polite">
         <header class="page-header">
           <span class="page-kicker">Page 2</span>
           <h2>You Caught My Heart</h2>
@@ -584,8 +727,8 @@
         </nav>
       </article>
 
-      <!-- Page 3 -->
-      <article class="page" data-index="2" aria-live="polite">
+      <!-- Page 4 -->
+      <article class="page" data-index="3" aria-live="polite">
         <header class="page-header">
           <span class="page-kicker">Page 3</span>
           <h2>God Made You Mine</h2>
@@ -602,8 +745,8 @@
         </nav>
       </article>
 
-      <!-- Page 4 -->
-      <article class="page" data-index="3" aria-live="polite">
+      <!-- Page 5 -->
+      <article class="page" data-index="4" aria-live="polite">
         <header class="page-header">
           <span class="page-kicker">Page 4</span>
           <h2>Our Memories</h2>
@@ -625,8 +768,8 @@
         </nav>
       </article>
 
-      <!-- Page 5 -->
-      <article class="page" data-index="4" aria-live="polite">
+      <!-- Page 6 -->
+      <article class="page" data-index="5" aria-live="polite">
         <header class="page-header">
           <span class="page-kicker">Page 5</span>
           <h2>My Prayer For You</h2>
@@ -644,7 +787,7 @@
       </article>
 
       <!-- Final Page -->
-      <article class="page" data-index="5" aria-live="polite">
+      <article class="page" data-index="6" aria-live="polite">
         <header class="page-header">
           <span class="page-kicker">Final Page</span>
           <h1>Happy Birthday ❤️</h1>
@@ -674,7 +817,6 @@
   <script>
     function renderEmoji() {
       if (!window.twemoji) return;
-
       twemoji.parse(document.body, {
         base: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/",
         folder: "svg",
@@ -707,6 +849,9 @@
 
     const confettiColors = ["#c2185b", "#d4a843", "#8b1c4a", "#ffffff", "#e91e63", "#f8bf4c"];
 
+    // Video element
+    const birthdayVideo = document.getElementById("birthdayVideo");
+
     // Create dots
     pages.forEach((_, index) => {
       const dot = document.createElement("span");
@@ -730,6 +875,25 @@
       }
     }
 
+    function sparkleBurst(x, y, count = 20) {
+      const burst = document.createElement("div");
+      burst.className = "sparkle-burst";
+      burst.style.left = x + "px";
+      burst.style.top = y + "px";
+      for (let i = 0; i < count; i++) {
+        const sparkle = document.createElement("div");
+        sparkle.className = "sparkle";
+        const angle = (Math.PI * 2 * i) / count;
+        const dist = 50 + Math.random() * 100;
+        sparkle.style.setProperty("--sx", Math.cos(angle) * dist + "px");
+        sparkle.style.setProperty("--sy", Math.sin(angle) * dist + "px");
+        sparkle.style.background = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+        burst.appendChild(sparkle);
+      }
+      document.body.appendChild(burst);
+      setTimeout(() => burst.remove(), 1200);
+    }
+
     function updateControls() {
       dots.forEach((dot, index) => dot.classList.toggle("active", index === currentPage));
 
@@ -750,6 +914,16 @@
       const nextPage = pages[nextIndex];
       const goingForward = nextIndex > currentPage;
 
+      // Pause video when leaving video page
+      if (currentPage === 0 && birthdayVideo) {
+        birthdayVideo.pause();
+      }
+
+      // Play video when arriving at video page
+      if (nextIndex === 0 && birthdayVideo) {
+        birthdayVideo.play().catch(() => {});
+      }
+
       // Remove any existing animation classes
       oldPage.classList.remove("turning-out", "turning-in", "turning-out-reverse", "turning-in-reverse");
       nextPage.classList.remove("turning-out", "turning-in", "turning-out-reverse", "turning-in-reverse");
@@ -758,11 +932,9 @@
       void oldPage.offsetWidth;
 
       if (goingForward) {
-        // Forward: old page turns out to the left, new page turns in from the right
         oldPage.classList.add("turning-out");
         nextPage.classList.add("active", "turning-in");
       } else {
-        // Backward: old page turns out to the right, new page turns in from the left
         oldPage.classList.add("turning-out-reverse");
         nextPage.classList.add("active", "turning-in-reverse");
       }
@@ -788,11 +960,31 @@
       showPage(currentPage - 1);
     }
 
-    openBtn.addEventListener("click", () => {
+    openBtn.addEventListener("click", (e) => {
+      const rect = openBtn.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
       book.classList.add("open");
-      celebrate(52);
+      celebrate(80);
+      sparkleBurst(centerX, centerY, 30);
       updateControls();
+      
+      // Try to play video after cover opens
+      setTimeout(() => {
+        if (birthdayVideo) {
+          birthdayVideo.play().catch(() => {});
+          birthdayVideo.muted = false;
+        }
+      }, 600);
     });
+
+    // Tap video to toggle mute/unmute
+    if (birthdayVideo) {
+      birthdayVideo.addEventListener("click", () => {
+        birthdayVideo.muted = !birthdayVideo.muted;
+      });
+    }
 
     document.querySelectorAll(".nextBtn, .nextIconBtn").forEach((button) => {
       button.addEventListener("click", nextPage);
@@ -803,6 +995,12 @@
     });
 
     restartBtn.addEventListener("click", () => {
+      if (birthdayVideo) {
+        birthdayVideo.pause();
+        birthdayVideo.currentTime = 0;
+        birthdayVideo.muted = true;
+      }
+      
       pages[currentPage].classList.remove("active");
       currentPage = 0;
       pages[currentPage].classList.add("active");
